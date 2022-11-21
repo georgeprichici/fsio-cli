@@ -1,10 +1,8 @@
 import asyncio
-import time
-import json
 from filescan_cli.core.logger import Logger
 from filescan_cli.service.scan import Scan
 from filescan_cli.service.report import Report
-from filescan_cli.formatter.reports import ReportsFormatter
+from filescan_cli.formatter.mdcore_reports import MDCoreReportsFormatter
 
 
 class MDCoreScanFlow:
@@ -14,7 +12,7 @@ class MDCoreScanFlow:
         self.logger = Logger()
         self.scanner = Scan()
         self.report = Report()
-        self.formatter = ReportsFormatter()
+        self.formatter = MDCoreReportsFormatter()
 
 
     async def run(
@@ -64,56 +62,7 @@ class MDCoreScanFlow:
             if 'reports' not in scan_report or not scan_report['reports']:
                 continue
             
-            # TODO: 
-            #   check which is last state??
-            #   missing created date for finalVerdict -> use another filter?
-            #   {
-            #     "reports": {
-            #         "<<<id>>>": {
-            #         "finalVerdict": {
-            #             "verdict": "INFORMATIONAL",
-            #             "threatLevel": 0.2,
-            #             "confidence": 1
-            #         }
-            #         }
-            #     }
-            #   }
-            #        
-
-
-            '''
-            Processing result and its index
-                No Threat Detected: 0
-                Infected: 1
-                Suspicious: 2
-                Failed: 3
-            '''            
-
-            # TODO: when is unknown status being used? 
-            mdcore_response = { }
-            possible_scan_results = {
-                "informational": 0,
-                "malicious": 1,
-                "suspicious": 2,
-                "likely_malicious": 1,
-                "unknown": 3  
-            }
-
-
-            reports = scan_report['reports']            
-            for id, report in reports.items():
+            reports = scan_report['reports']     
                 
-                # self.logger.debug("Report: \n" + json.dumps(report, indent=3))
-                # report = reports[id]
-                if 'finalVerdict' not in report:
-                    continue
-                
-                mdcore_response["def_time"] = int(time.time() * 1000) # TODO get report time
-
-                final_verdict = report["finalVerdict"]
-                
-                mdcore_response["scan_result_i"] = possible_scan_results[str(final_verdict["verdict"]).lower()]
-                mdcore_response["threat_found"] = f"{final_verdict['verdict'].capitalize()} ThreatLevel: {final_verdict['threatLevel']:.0%}"
-                
-            return mdcore_response
+            return self.formatter.format(reports)
 
