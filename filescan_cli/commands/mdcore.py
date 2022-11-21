@@ -2,6 +2,7 @@ import asyncclick as aclick
 from filescan_cli.core.logger import Logger
 from filescan_cli.flow.mdcore_scan import MDCoreScanFlow
 from filescan_cli.common.config import load_config
+from filescan_cli.formatter.mdcore_reports import MDCoreReportsFormatter
 import json
 import sys
 import time
@@ -39,10 +40,7 @@ async def submit(
         result = await scan_flow.run(file=filename, link=None, desc='', tags='', prop_tags=False, password='', is_private=False)     
     else:
           
-        result["def_time"] = int(time.time() * 1000)        
-        
-        result["scan_result_i"] = 10 # Not Scanned
-        result["threat_found"] = ""
+        result = MDCoreReportsFormatter().empty_result()
                 
 
     # logger.debug(json.dumps(result, indent=3))
