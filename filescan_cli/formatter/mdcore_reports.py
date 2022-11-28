@@ -53,18 +53,23 @@ class MDCoreReportsFormatter:
             "unknown": 3  
         }
                
-        for id, report in reports.items():
-            
-            # self.logger.debug("Report: \n" + json.dumps(report, indent=3))
+        for id, report in reports.items():                        
             # report = reports[id]
             if 'finalVerdict' not in report:
                 continue
+
+            if 'overallState' not in report or not report['overallState']:
+                continue       
+
+            accepted_states = ['success', 'success_partial', 'failed', 'failed_partial']
+            if report['overallState'].lower() not in accepted_states:
+                continue        
             
             mdcore_response["def_time"] = int(time.time() * 1000) # TODO get report time
 
             final_verdict = report["finalVerdict"]
             
             mdcore_response["scan_result_i"] = possible_scan_results[str(final_verdict["verdict"]).lower()]
-            mdcore_response["threat_found"] = f"{final_verdict['verdict'].capitalize()} ThreatLevel: {final_verdict['threatLevel']:.0%}"
+            mdcore_response["threat_found"] = f"{final_verdict['verdict'].capitalize()}"
 
         return mdcore_response
