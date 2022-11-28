@@ -14,10 +14,11 @@ class Scan():
         self.headers = get_private_header()
 
 
-    async def upload(self, file, link, desc, tags, prop_tags, password, is_private):
+    async def upload(self, file, link, desc, tags, prop_tags, password, is_private, filename):
         """Upload a file for scanning"""
-
-        if file:
+        if filename:
+            name = filename
+        elif file:
             name = os.path.basename(file)
         else:
             name = link[link.rindex('/') + 1:]
